@@ -6,26 +6,57 @@ import { ExampleChart, Pie3D, Column3D, Bar3D, Doughnut2D } from './Charts';
 const Repos = () => {
   const { repos } = React.useContext(GithubContext);
 
-  let languages = repos.reduce((total, item) => {
-    const { primaryLanguage } = item;
+  const languages = repos.reduce((total, item) => {
+    const { primaryLanguage, stargazerCount } = item;
     const { name: language } = primaryLanguage;
     if (!language) return total;
     if (!total[language]) {
-      total[language] = { label: language, value: 1 };
+      total[language] = { label: language, value: 1, stars: stargazerCount };
     } else {
       total[language] = {
         ...total[language],
         value: total[language].value + 1,
+        stars: total[language].stars + stargazerCount,
       };
     }
     return total;
   }, {});
-  console.log(languages);
-  languages = Object.values(languages)
+  // console.log(languages);
+  const mostUsed = Object.values(languages)
     .sort((a, b) => {
       return b.value - a.value;
     })
     .slice(0, 5);
+
+  // most stars per language
+
+  const mostPopular = Object.values(languages)
+    .sort((a, b) => {
+      return b.stars - a.stars;
+    })
+    .map((item) => {
+      return { ...item, value: item.stars };
+    })
+    .slice(0, 5);
+
+  // stars, forks
+
+  let { stars, forks } = repos.reduce(
+    (total, item) => {
+      const { stargazerCount, name, forkCount } = item;
+      total.stars[stargazerCount] = { label: name, value: stargazerCount };
+      total.forks[forkCount] = { label: name, value: forkCount };
+
+      return total;
+    },
+    {
+      stars: {},
+      forks: {},
+    },
+  );
+
+  stars = Object.values(stars).slice(-5).reverse();
+  forks = Object.values(forks).slice(-5).reverse();
 
   const chartData = [
     {
@@ -45,11 +76,10 @@ const Repos = () => {
   return (
     <section className="section">
       <Wrapper className="section-center">
-        <Pie3D data={languages} />
-        <div></div>
-        <Doughnut2D data={chartData} />
-        {/* <ExampleChart data={chartData} /> */}
-        <div></div>
+        <Pie3D data={mostUsed} />
+        <Column3D data={stars} />
+        <Doughnut2D data={mostPopular} />
+        <Bar3D data={forks} />
       </Wrapper>
     </section>
   );

@@ -9,9 +9,17 @@ import { Auth0Provider } from '@auth0/auth0-react';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <GithubProvider>
-      <App />
-    </GithubProvider>
+    <Auth0Provider
+      domain="dev-xqwvxp1mfer70i16.us.auth0.com"
+      clientId="eKFgiwcIt1LmGh600MsZRXTvSSs6o54x"
+      authorizationParams={{
+        redirect_uri: window.location.origin,
+      }}
+    >
+      <GithubProvider>
+        <App />
+      </GithubProvider>
+    </Auth0Provider>
   </React.StrictMode>,
 );
 
